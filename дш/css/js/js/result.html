@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьное тестирование - Результат теста</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Результат теста</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html"><i class="fas fa-home"></i> Главная</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="result-section">
+            <div class="container">
+                <div id="resultContent">
+                    <!-- Результат будет загружен через JavaScript -->
+                </div>
+                
+                <div class="result-actions">
+                    <a href="index.html" class="btn btn-primary">
+                        <i class="fas fa-home"></i> На главную
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Распечатать результат
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 Школьное тестирование. Результат теста</p>
+        </div>
+    </footer>
+
+    <script>
+        // Отображение результата теста
+        document.addEventListener('DOMContentLoaded', function() {
+            const result = JSON.parse(sessionStorage.getItem('lastResult'));
+            
+            if (!result) {
+                document.getElementById('resultContent').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle fa-3x"></i>
+                        <h3>Результат не найден</h3>
+                        <p>Пожалуйста, пройдите тест сначала</p>
+                        <a href="index.html" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Вернуться на главную
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Определяем иконку для оценки
+            let gradeIcon = 'fas fa-meh'; // по умолчанию
+            if (result.grade >= 4) gradeIcon = 'fas fa-smile';
+            if (result.grade === 5) gradeIcon = 'fas fa-grin-stars';
+            if (result.grade <= 2) gradeIcon = 'fas fa-frown';
+            
+            // Форматируем время
+            const minutes = Math.floor(result.timeSpent / 60);
+            const seconds = result.timeSpent % 60;
+            const timeFormatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('resultContent').innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-grade">
+                            <div class="grade-circle grade-${result.grade}">
+                                <i class="${gradeIcon}"></i>
+                                <span class="grade-number">${result.grade}</span>
+                            </div>
+                            <h2>Ваша оценка: ${result.grade}</h2>
+                        </div>
+                        <div class="result-summary">
+                            <h3>${result.testTitle}</h3>
+                            <p>${result.studentName}, ${result.studentClass}</p>
+                            <p class="result-date">${new Date(result.completedAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${result.correctAnswers}/${result.totalQuestions}</div>
+                            <div class="stat-label">Правильных ответов</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${result.percentage.toFixed(1)}%</div>
+                            <div class="stat-label">Процент выполнения</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${timeFormatted}</div>
+                            <div class="stat-label">Время выполнения</div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-details">
+                        <h3><i class="fas fa-chart-pie"></i> Детализация результатов</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${result.percentage}%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>0%</span>
+                            <span>50%</span>
+                            <span>100%</span>
+                        </div>
+                        
+                        <div class="performance-feedback">
+                            ${getPerformanceFeedback(result.percentage)}
+                        </div>
+                    </div>
+                    
+                    <div class="result-message">
+                        <p><i class="fas fa-info-circle"></i> Ваш результат сохранен и отправлен учителю.</p>
+                        <p>Учитель ${result.teacher} получит уведомление о вашем результате.</p>
+                    </div>
+                </div>
+            `;
+            
+            // Очищаем sessionStorage
+            sessionStorage.removeItem('lastResult');
+            sessionStorage.removeItem('currentTestId');
+            sessionStorage.removeItem('testStartTime');
+            sessionStorage.removeItem('testTime');
+        });
+        
+        function getPerformanceFeedback(percentage) {
+            if (percentage >= 85) {
+                return `
+                    <div class="feedback excellent">
+                        <i class="fas fa-trophy"></i>
+                        <div>
+                            <h4>Отличный результат!</h4>
+                            <p>Вы отлично справились с тестом. Продолжайте в том же духе!</p>
+                        </div>
+                    </div>
+                `;
+            } else if (percentage >= 70) {
+                return `
+                    <div class="feedback good">
+                        <i class="fas fa-thumbs-up"></i>
+                        <div>
+                            <h4>Хороший результат!</h4>
+                            <p>Вы хорошо справились с тестом. Есть небольшие моменты для улучшения.</p>
+                        </div>
+                    </div>
+                `;
+            } else if (percentage >= 50) {
+                return `
+                    <div class="feedback average">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h4>Удовлетворительный результат</h4>
+                            <p>Вы прошли тест, но есть над чем поработать. Рекомендуем повторить материал.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="feedback poor">
+                        <i class="fas fa-book"></i>
+                        <div>
+                            <h4>Требуется дополнительное изучение</h4>
+                            <p>Рекомендуем внимательно изучить материал и попробовать пройти тест снова.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Добавляем стили для страницы результата
+        const style = document.createElement('style');
+        style.textContent = `
+            .result-card {
+                background: white;
+                border-radius: var(--border-radius);
+                padding: 2rem;
+                box-shadow: var(--box-shadow);
+                margin-bottom: 2rem;
+            }
+            
+            .result-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                margin-bottom: 2rem;
+                padding-bottom: 2rem;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .grade-circle {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1rem;
+                color: white;
+                font-size: 2.5rem;
+                position: relative;
+            }
+            
+            .grade-circle.grade-5 { background: linear-gradient(135deg, #28a745, #20c997); }
+            .grade-circle.grade-4 { background: linear-gradient(135deg, #17a2b8, #20c997); }
+            .grade-circle.grade-3 { background: linear-gradient(135deg, #ffc107, #fd7e14); }
+            .grade-circle.grade-2 { background: linear-gradient(135deg, #dc3545, #fd7e14); }
+            
+            .grade-number {
+                font-size: 3rem;
+                font-weight: bold;
+                margin-top: 0.5rem;
+            }
+            
+            .result-summary h3 {
+                color: var(--primary-color);
+                margin-bottom: 0.5rem;
+            }
+            
+            .result-summary p {
+                color: #666;
+                margin-bottom: 0.25rem;
+            }
+            
+            .result-date {
+                font-size: 0.9rem;
+                color: #999;
+            }
+            
+            .result-stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .stat-item {
+                text-align: center;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: var(--border-radius);
+            }
+            
+            .stat-value {
+                font-size: 2.5rem;
+                font-weight: bold;
+                color: var(--primary-color);
+                margin-bottom: 0.5rem;
+            }
+            
+            .stat-label {
+                color: #666;
+                font-size: 0.9rem;
+            }
+            
+            .result-details {
+                margin-bottom: 2rem;
+            }
+            
+            .progress-bar {
+                height: 20px;
+                background: #e9ecef;
+                border-radius: 10px;
+                margin: 1rem 0;
+                overflow: hidden;
+            }
+            
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+                border-radius: 10px;
+                transition: width 1s ease;
+            }
+            
+            .progress-labels {
+                display: flex;
+                justify-content: space-between;
+                color: #666;
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+            }
+            
+            .performance-feedback {
+                margin-top: 2rem;
+                padding: 1.5rem;
+                border-radius: var(--border-radius);
+                background: #f8f9fa;
+            }
+            
+            .feedback {
+                display: flex;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .feedback i {
+                font-size: 2rem;
+                margin-top: 0.25rem;
+            }
+            
+            .feedback.excellent i { color: #28a745; }
+            .feedback.good i { color: #17a2b8; }
+            .feedback.average i { color: #ffc107; }
+            .feedback.poor i { color: #dc3545; }
+            
+            .feedback h4 {
+                margin-bottom: 0.5rem;
+                color: var(--dark-color);
+            }
+            
+            .result-message {
+                padding: 1.5rem;
+                background: #e7f3ff;
+                border-radius: var(--border-radius);
+                border-left: 4px solid var(--primary-color);
+            }
+            
+            .result-message p {
+                margin-bottom: 0.5rem;
+                display: flex;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .result-message i {
+                color: var(--primary-color);
+                margin-top: 0.25rem;
+            }
+            
+            .result-actions {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            @media (max-width: 768px) {
+                .result-header {
+                    flex-direction: column;
+                }
+                
+                .result-stats {
+                    grid-template-columns: 1fr;
+                }
+                
+                .result-actions {
+                    flex-direction: column;
+                }
+                
+                .result-actions .btn {
+                    width: 100%;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

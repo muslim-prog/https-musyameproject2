@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьное тестирование - Главная</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Школьное тестирование</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="active"><i class="fas fa-home"></i> Главная</a>
+                    <a href="#subjects"><i class="fas fa-book"></i> Предметы</a>
+                    <a href="login.html"><i class="fas fa-chalkboard-teacher"></i> Вход для учителей</a>
+                </div>
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Добро пожаловать в систему школьного тестирования</h1>
+                    <p>Современная платформа для проведения тестов и оценки знаний учащихся</p>
+                    <div class="hero-buttons">
+                        <a href="#subjects" class="btn btn-primary">
+                            <i class="fas fa-play-circle"></i> Начать тест
+                        </a>
+                        <a href="login.html" class="btn btn-secondary">
+                            <i class="fas fa-user-tie"></i> Вход для учителей
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://avatars.mds.yandex.net/get-altay/14064514/2a00000192551352ac51be9834a01634cac1/orig" alt="Школа">
+                </div>
+            </div>
+        </section>
+
+        <section id="subjects" class="subjects-section">
+            <div class="container">
+                <h2>Выберите предмет для тестирования</h2>
+                <div class="subjects-grid" id="subjectsGrid">
+                    <!-- Предметы будут загружены через JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2>Как это работает</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3>Для учеников</h3>
+                        <p>Введите имя и класс, выберите тест и проверьте свои знания. Получите результат сразу после завершения.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3>Для учителей</h3>
+                        <p>Создавайте тесты, отслеживайте результаты учеников и анализируйте успеваемость по предметам.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Доступно везде</h3>
+                        <p>Работает на компьютерах, планшетах и телефонах. Удобный интерфейс для любого устройства.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 Школьное тестирование. Все права защищены.</p>
+            <p>Система разработана для образовательных учреждений</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/tests.js"></script>
+</body>
+</html>

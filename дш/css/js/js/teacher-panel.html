@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьное тестирование - Кабинет учителя</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Кабинет учителя</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html"><i class="fas fa-home"></i> Главная</a>
+                    <a href="teacher-panel.html" class="active"><i class="fas fa-tachometer-alt"></i> Мои тесты</a>
+                    <a href="test-editor.html"><i class="fas fa-plus-circle"></i> Создать тест</a>
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+                </div>
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="teacher-dashboard">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-chalkboard-teacher"></i> Добро пожаловать, <span id="teacherName"></span>!</h1>
+                    <p>Управляйте своими тестами и просматривайте результаты учеников</p>
+                </div>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalTests">0</h3>
+                            <p>Всего тестов</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Учеников прошли</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="avgGrade">0.0</h3>
+                            <p>Средняя оценка</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-actions">
+                    <a href="test-editor.html" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Создать новый тест
+                    </a>
+                </div>
+                
+                <div class="tests-section">
+                    <h2><i class="fas fa-list"></i> Мои тесты</h2>
+                    <div class="tests-grid" id="testsList">
+                        <!-- Тесты будут загружены через JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <h2><i class="fas fa-chart-bar"></i> Последние результаты</h2>
+                    <div class="results-table-container">
+                        <table class="results-table" id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Ученик</th>
+                                    <th>Класс</th>
+                                    <th>Тест</th>
+                                    <th>Оценка</th>
+                                    <th>Результат</th>
+                                    <th>Дата</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Результаты будут загружены через JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 Школьное тестирование. Кабинет учителя</p>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/tests.js"></script>
+    <script>
+        // Загрузка статистики учителя
+        document.addEventListener('DOMContentLoaded', function() {
+            // Отображаем имя учителя
+            document.getElementById('teacherName').textContent = getCurrentTeacher();
+            
+            // Загружаем статистику
+            loadTeacherStats();
+            loadRecentResults();
+        });
+        
+        function loadTeacherStats() {
+            const tests = JSON.parse(localStorage.getItem('tests'));
+            const results = JSON.parse(localStorage.getItem('results'));
+            const currentTeacher = getCurrentTeacher();
+            
+            // Тесты текущего учителя
+            const teacherTests = tests.filter(test => test.teacher === currentTeacher);
+            document.getElementById('totalTests').textContent = teacherTests.length;
+            
+            // Результаты по тестам учителя
+            const teacherResults = results.filter(result => result.teacher === currentTeacher);
+            document.getElementById('totalStudents').textContent = teacherResults.length;
+            
+            // Средняя оценка
+            if (teacherResults.length > 0) {
+                const totalGrade = teacherResults.reduce((sum, result) => sum + result.grade, 0);
+                const avgGrade = totalGrade / teacherResults.length;
+                document.getElementById('avgGrade').textContent = avgGrade.toFixed(1);
+            }
+        }
+        
+        function loadRecentResults() {
+            const results = JSON.parse(localStorage.getItem('results'));
+            const currentTeacher = getCurrentTeacher();
+            
+            // Результаты текущего учителя, отсортированные по дате
+            const teacherResults = results
+                .filter(result => result.teacher === currentTeacher)
+                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+                .slice(0, 10); // Последние 10 результатов
+            
+            const tbody = document.querySelector('#resultsTable tbody');
+            tbody.innerHTML = '';
+            
+            teacherResults.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.studentName}</td>
+                    <td>${result.studentClass}</td>
+                    <td>${result.testTitle}</td>
+                    <td>
+                        <span class="grade-badge grade-${result.grade}">
+                            ${result.grade}
+                        </span>
+                    </td>
+                    <td>${result.correctAnswers}/${result.totalQuestions} (${result.percentage.toFixed(1)}%)</td>
+                    <td>${new Date(result.completedAt).toLocaleDateString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Добавляем стили для оценок
+            const style = document.createElement('style');
+            style.textContent = `
+                .grade-badge {
+                    display: inline-block;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    color: white;
+                }
+                .grade-5 { background-color: var(--success-color); }
+                .grade-4 { background-color: #17a2b8; }
+                .grade-3 { background-color: var(--warning-color); color: #212529; }
+                .grade-2 { background-color: var(--danger-color); }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>

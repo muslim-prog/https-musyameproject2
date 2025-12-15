@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьное тестирование - Прохождение теста</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Прохождение теста</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html"><i class="fas fa-home"></i> Главная</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div id="studentInfoSection" class="student-info-section">
+                <div class="info-card">
+                    <h2><i class="fas fa-user-graduate"></i> Информация об ученике</h2>
+                    <form id="studentForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="studentName"><i class="fas fa-user"></i> Имя ученика</label>
+                                <input type="text" id="studentName" name="studentName" required 
+                                       placeholder="Введите ваше имя">
+                            </div>
+                            <div class="form-group">
+                                <label for="studentClass"><i class="fas fa-school"></i> Класс</label>
+                                <input type="text" id="studentClass" name="studentClass" required 
+                                       placeholder="Например, 10А">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-arrow-right"></i> Продолжить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="testSelectionSection" class="test-selection-section" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-clipboard-list"></i> Выберите тест</h2>
+                    <div class="student-info-display">
+                        <span><i class="fas fa-user"></i> <span id="displayStudentName"></span></span>
+                        <span><i class="fas fa-school"></i> <span id="displayStudentClass"></span></span>
+                    </div>
+                </div>
+                <div id="testsContainer">
+                    <!-- Тесты будут загружены через JavaScript -->
+                </div>
+            </div>
+            
+            <div id="testTakingSection" class="test-taking-section" style="display: none;">
+                <div class="test-header">
+                    <div class="test-timer">
+                        <i class="fas fa-clock"></i>
+                        <span id="timer">00:00</span>
+                    </div>
+                    <div id="testInfo">
+                        <!-- Информация о тесте будет загружена через JavaScript -->
+                    </div>
+                </div>
+                
+                <form id="testForm">
+                    <div id="questionsContainer">
+                        <!-- Вопросы будут загружены через JavaScript -->
+                    </div>
+                    
+                    <div class="test-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane"></i> Завершить тест
+                        </button>
+                        <div class="test-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            После отправки изменить ответы будет нельзя
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 Школьное тестирование. Прохождение теста</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Обработка формы ученика
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentName = document.getElementById('studentName').value;
+            const studentClass = document.getElementById('studentClass').value;
+            
+            // Сохраняем данные ученика
+            sessionStorage.setItem('studentName', studentName);
+            sessionStorage.setItem('studentClass', studentClass);
+            
+            // Отображаем информацию ученика
+            document.getElementById('displayStudentName').textContent = studentName;
+            document.getElementById('displayStudentClass').textContent = studentClass;
+            
+            // Переключаем секции
+            document.getElementById('studentInfoSection').style.display = 'none';
+            document.getElementById('testSelectionSection').style.display = 'block';
+            
+            // Загружаем доступные тесты
+            loadAvailableTests();
+        });
+        
+        // Функция загрузки доступных тестов
+        function loadAvailableTests() {
+            const subjectId = sessionStorage.getItem('selectedSubject');
+            const tests = JSON.parse(localStorage.getItem('tests'));
+            const studentName = sessionStorage.getItem('studentName');
+            
+            // Фильтруем тесты по предмету
+            const subjectTests = tests.filter(test => test.subject === subjectId);
+            
+            // Проверяем, какие тесты ученик уже проходил
+            const results = JSON.parse(localStorage.getItem('results'));
+            const passedTests = results.filter(result => 
+                result.studentName === studentName && 
+                result.subject === subjectId
+            ).map(result => result.testId);
+            
+            // Фильтруем тесты, которые ученик еще не проходил
+            const availableTests = subjectTests.filter(test => !passedTests.includes(test.id));
+            
+            const testsContainer = document.getElementById('testsContainer');
+            
+            if (availableTests.length === 0) {
+                testsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-check fa-3x"></i>
+                        <h3>Нет доступных тестов</h3>
+                        <p>Вы уже прошли все тесты по этому предмету</p>
+                        <a href="index.html" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Вернуться к предметам
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            testsContainer.innerHTML = '';
+            
+            availableTests.forEach(test => {
+                const testCard = document.createElement('div');
+                testCard.className = 'test-card';
+                testCard.innerHTML = `
+                    <div class="test-header">
+                        <h3>${test.title}</h3>
+                        <span class="test-teacher">${test.teacher}</span>
+                    </div>
+                    <p>${test.description || 'Описание отсутствует'}</p>
+                    <div class="test-info">
+                        <p><i class="fas fa-question-circle"></i> Вопросов: ${test.questions.length}</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="startTest('${test.id}')">
+                        <i class="fas fa-play"></i> Начать тест
+                    </button>
+                `;
+                
+                testsContainer.appendChild(testCard);
+            });
+        }
+        
+        // Начать тест
+        function startTest(testId) {
+            sessionStorage.setItem('currentTestId', testId);
+            sessionStorage.setItem('testStartTime', Date.now());
+            
+            // Переключаем на секцию прохождения теста
+            document.getElementById('testSelectionSection').style.display = 'none';
+            document.getElementById('testTakingSection').style.display = 'block';
+            
+            // Загружаем тест
+            loadStudentTest();
+        }
+    </script>
+</body>
+</html>

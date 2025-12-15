@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьное тестирование - Создание теста</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Создание теста</span>
+                </div>
+                <div class="nav-links">
+                    <a href="teacher-panel.html"><i class="fas fa-arrow-left"></i> Назад к тестам</a>
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="test-editor">
+            <div class="container">
+                <div class="editor-header">
+                    <h1><i class="fas fa-edit"></i> Создание нового теста</h1>
+                    <p>Заполните информацию о тесте и добавьте вопросы с ответами</p>
+                </div>
+                
+                <form id="testForm" class="editor-form">
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Основная информация</h3>
+                        
+                        <div class="form-group">
+                            <label for="testTitle"><i class="fas fa-heading"></i> Название теста</label>
+                            <input type="text" id="testTitle" name="testTitle" required 
+                                   placeholder="Введите название теста">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="testSubject"><i class="fas fa-book"></i> Предмет</label>
+                            <select id="testSubject" name="testSubject" required>
+                                <option value="">Выберите предмет</option>
+                                <!-- Предметы будут загружены через JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="testDescription"><i class="fas fa-align-left"></i> Описание теста</label>
+                            <textarea id="testDescription" name="testDescription" rows="3" 
+                                      placeholder="Опишите тест (необязательно)"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-question-circle"></i> Вопросы теста</h3>
+                            <button type="button" id="addQuestionBtn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Добавить вопрос
+                            </button>
+                        </div>
+                        
+                        <div id="questionsContainer">
+                            <!-- Вопросы будут добавляться динамически -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Сохранить тест
+                        </button>
+                        <a href="teacher-panel.html" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 Школьное тестирование. Редактор тестов</p>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/tests.js"></script>
+    <script>
+        // Загрузка предметов для выбора
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSubjectsForEditor();
+            
+            // Добавляем первый вопрос по умолчанию
+            if (document.getElementById('addQuestionBtn')) {
+                document.getElementById('addQuestionBtn').click();
+            }
+        });
+        
+        function loadSubjectsForEditor() {
+            const subjects = JSON.parse(localStorage.getItem('subjects'));
+            const select = document.getElementById('testSubject');
+            
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = subject.name;
+                select.appendChild(option);
+            });
+        }
+    </script>
+</body>
+</html>
